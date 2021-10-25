@@ -53,28 +53,19 @@ jobs:
           IMAGENAME=$(echo ${{ github.repository }} | sed 's/${{ github.repository_owner }}\/docker-//g')
           IMAGEPREFIX="ghcr.io/${{ github.repository_owner }}"
           IMAGE="${IMAGEPREFIX}/${IMAGENAME}"
-          VERSION=${{ steps.get_version.outputs.version }}
 
-          TAGS="${IMAGE}:${VERSION}"
-          if [[ $VERSION =~ ^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-            MINOR=${VERSION%.*}
-            MAJOR=${MINOR%.*}
-            TAGS="$TAGS,${IMAGE}:${MINOR},${IMAGE}:${MAJOR},${IMAGE}:latest"
+          if [[ $github.event_name = repository_dispatch ]]; then
+            VERSION=${{ steps.get_version.outputs.version }}
+            TAGS="${IMAGE}:${VERSION}"
+            if [[ $VERSION =~ ^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+              MINOR=${VERSION%.*}
+              MAJOR=${MINOR%.*}
+              TAGS="$TAGS,${IMAGE}:${MINOR},${IMAGE}:${MAJOR},${IMAGE}:latest"
+            fi
+          else
+            VERSION=nightly
+            TAGS="${IMAGE}:${VERSION}"
           fi
-          echo ::set-output name=tags::${TAGS}
-          echo ::set-output name=imagename::${IMAGENAME}
-          echo ::set-output name=version::${VERSION}
-          echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-      - 
-        name: Prepare
-        id: prep
-        if: github.event_name != 'repository_dispatch'
-        run: |
-          IMAGENAME=$(echo ${{ github.repository }} | sed 's/${{ github.repository_owner }}\/docker-//g')
-          IMAGEPREFIX="ghcr.io/${{ github.repository_owner }}"
-          IMAGE="${IMAGEPREFIX}/${IMAGENAME}"
-          VERSION=nightly
-          TAGS="${IMAGE}:${VERSION}"
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=imagename::${IMAGENAME}
           echo ::set-output name=version::${VERSION}
