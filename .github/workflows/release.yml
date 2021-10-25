@@ -48,7 +48,6 @@ jobs:
       - 
         name: Prepare
         id: prep
-        if: github.event_name = 'repository_dispatch'
         run: |
           IMAGENAME=$(echo ${{ github.repository }} | sed 's/${{ github.repository_owner }}\/docker-//g')
           IMAGEPREFIX="ghcr.io/${{ github.repository_owner }}"
