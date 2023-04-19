@@ -65,6 +65,9 @@ jobs:
             VERSION=nightly
             TAGS="${IMAGE}:${VERSION}"
           fi
+          ###### FIX DOCKERFILE #######
+          sed -i "s/GOARCH=amd64//g" Dockerfile
+          #############################
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=imagename::${IMAGENAME}
           echo ::set-output name=version::${VERSION}
